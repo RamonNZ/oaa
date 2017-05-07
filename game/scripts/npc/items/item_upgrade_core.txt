@@ -9,7 +9,8 @@
 		//-------------------------------------------------------------------------------------------------------------
 		"ID"                            "3530"      // unique ID
 		"BaseClass"                     "item_datadriven"
- 		"AbilityTextureName"				"custom/upgrade_core"
+    "AbilityBehavior"               "DOTA_ABILITY_BEHAVIOR_PASSIVE"
+ 		"AbilityTextureName"				"custom/angels_blood"
 		// Stats
 		//-------------------------------------------------------------------------------------------------------------
 

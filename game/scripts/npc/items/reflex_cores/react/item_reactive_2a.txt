@@ -10,7 +10,7 @@
 		"AbilityTextureName"    "item_recipe"
 		"Model"                 "models/props_gameplay/recipe.mdl"
 		"FightRecapLevel"       "1"
-		"ItemCost"              "2300"
+		"ItemCost"              "3500"
 		"ItemShopTags"          ""
 		"ItemRecipe"            "1"
 		"ItemResult"            "item_reactive_2a"
@@ -74,7 +74,7 @@
 			"04"
 			{
 				"var_type"        	"FIELD_FLOAT"
-				"duration"        	"0.5"
+				"duration"        	"0.75"
 			}
 		}
 

@@ -8,6 +8,7 @@ BAREBONES_DEBUG_SPEW = false
 
 if GameMode == nil then
     DebugPrint( '[BAREBONES] creating barebones game mode' )
+    print("Lua Version: " .. _VERSION)
     _G.GameMode = class({})
 end
 
@@ -150,6 +151,7 @@ function GameMode:OnPreGame()
   InitModule(SellBlackList)
   InitModule(BubbleOrbFilter)
   InitModule(NGP)
+  InitModule(Doors)
 end
 
 --[[

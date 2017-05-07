@@ -17,6 +17,10 @@ function Courier:Init ()
 end
 
 function Courier.SpawnCourier (hero)
+    if hero:GetTeamNumber() == DOTA_TEAM_NEUTRALS then
+    return
+  end
+
   Timers:CreateTimer(0.1, function ()
     if Courier.hasCourier[hero:GetTeamNumber()] then
       return
@@ -25,7 +29,7 @@ function Courier.SpawnCourier (hero)
     DebugPrint("Creating Courier for Team " .. hero:GetTeamNumber())
 
     -- Check if there is an item blocking slot 1, if so sell it
-    slot1Item = hero:GetItemInSlot(0)
+    local slot1Item = hero:GetItemInSlot(0)
     if slot1Item then
       hero:TakeItem(slot1Item)
     end
