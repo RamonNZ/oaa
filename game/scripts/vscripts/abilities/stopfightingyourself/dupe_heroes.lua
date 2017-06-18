@@ -4,7 +4,7 @@ require('libraries/timers')
 LinkLuaModifier("modifier_boss_stopfightingyourself_illusion", "abilities/stopfightingyourself/dupe_heroes.lua", LUA_MODIFIER_MOTION_NONE)
 
 
-boss_stopfightingyourself_dupe_heroes = class({})
+boss_stopfightingyourself_dupe_heroes = class(AbilityBaseClass)
 
 function boss_stopfightingyourself_dupe_heroes:GetAOERadius()
   return self:GetSpecialValueFor('radius')
@@ -15,6 +15,9 @@ function boss_stopfightingyourself_dupe_heroes:GetCooldown(level)
 end
 
 function boss_stopfightingyourself_dupe_heroes:CastFilterResult()
+  local caster = self:GetCaster()
+  local target = caster:GetAbsOrigin()
+
   for _,unit in ipairs(FindUnitsInRadius(
     caster:GetTeamNumber(),
     target,
@@ -140,7 +143,7 @@ function boss_stopfightingyourself_dupe_heroes:OnSpellStart()
 
       -- Randomly play sound to player (10% chance)
       -- NOTE this doesn't seem to work
-      if math.random(100) <= 10 then
+      if RandomFloat(0, 1) < 0.1 then
         --EmitAnnouncerSoundForPlayer('sounds/vo/announcer_dlc_rick_and_morty/generic_illusion_based_hero_02.vsnd', unit:GetPlayerID())
         illusion:EmitSound('sounds/vo/announcer_dlc_rick_and_morty/generic_illusion_based_hero_02.vsnd')
       end
@@ -149,7 +152,7 @@ function boss_stopfightingyourself_dupe_heroes:OnSpellStart()
         caster.illusions = {}
       end
       caster.illusions[illusion:entindex()] = illusion
-      cast.illusions.count = cast.illusions.count + 1
+      caster.illusions.count = caster.illusions.count + 1
 
       illusion:OnDeath(function()
         -- create particle
@@ -158,7 +161,7 @@ function boss_stopfightingyourself_dupe_heroes:OnSpellStart()
         end)
         caster.illusions[illusion:entindex()]:RemoveSelf()
         caster.illusions[illusion:entindex()] = nil
-        cast.illusions.count = cast.illusions.count - 1
+        caster.illusions.count = caster.illusions.count - 1
       end)
 
       --illusion:SetContextThink('IllusionThink', ...)

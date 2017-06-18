@@ -1,8 +1,6 @@
 if HeroProgression == nil then
     HeroProgression = class({})
-    Debug.EnabledModules['progression:*'] = false
-
-    ChatCommand:LinkCommand("-levelup", "OnLevelUpChatCmd", HeroProgression)
+    Debug.EnabledModules['progression:*'] = true
 end
 
 GameEvents:OnPlayerLevelUp(function(keys)
@@ -33,7 +31,16 @@ function HeroProgression:Init()
     "Agility",
     "Intellect"
   }
+  self.XPStorage = tomap(zip(PlayerResource:GetAllTeamPlayerIDs(), duplicate(0)))
+  GameEvents:OnPlayerReconnect(function(keys)
+    local playerID = keys.PlayerID
+    local hero = PlayerResource:GetSelectedHeroEntity(playerID)
 
+    hero:AddExperience(HeroProgression.XPStorage[playerID], DOTA_ModifyXP_Unspecified, false, true)
+    HeroProgression.XPStorage[playerID] = 0
+  end)
+
+  FilterManager:AddFilter(FilterManager.ModifyExperience, self, Dynamic_Wrap(HeroProgression, "ExperienceFilter"))
   self:RegisterCustomLevellingPatterns()
 end
 
@@ -68,11 +75,11 @@ end
 
 function HeroProgression:ReduceIllusionStats(illusionEnt)
   -- Support functions
-  function CalculateStatAt25(unitLevel, currentBaseStat, statGain)
+  local function CalculateStatAt25(unitLevel, currentBaseStat, statGain)
     return currentBaseStat - (unitLevel - 25) * statGain
   end
 
-  function CalculateReducedStat(unitLevel, statAt25, statGain)
+  local function CalculateReducedStat(unitLevel, statAt25, statGain)
     return statGain * 12 * math.log((2 * (unitLevel - 13) + 1) / (2 * 13 - 1)) + statAt25
   end
 
@@ -81,7 +88,7 @@ function HeroProgression:ReduceIllusionStats(illusionEnt)
   local GetStatGain = partial(self.GetStatGain, illusionEnt)
 
   -- Set one frame delay because illusions won't immediately have the correct level
-  function ReduceStats()
+  local function ReduceStats()
     Timers:CreateTimer(function()
       local currentHealth = illusionEnt:GetHealth()
       local currentMana = illusionEnt:GetMana()
@@ -131,7 +138,7 @@ function HeroProgression:ReduceIllusionStats(illusionEnt)
 end
 
 function HeroProgression:ShouldGetAnAbilityPoint(hero, level)
-  pattern = HeroProgression.customLevellingPatterns[hero:GetName()]
+  local pattern = HeroProgression.customLevellingPatterns[hero:GetName()]
   if pattern == nil then
     -- After level 25 most heros get an additional skill point every 3 levels
     return level < 25 or math.fmod(level, 3) == 1
@@ -150,8 +157,19 @@ function HeroProgression:ProcessAbilityPointGain(hero, level)
   end
 end
 
-function HeroProgression:OnLevelUpChatCmd(keys)
-  local hero = PlayerResource:GetSelectedHeroEntity(keys.playerid)
-  DebugPrint('Levelling up ' .. hero:GetName() .. ' now at level ' .. hero:GetLevel())
-  hero:HeroLevelUp(true)
+function HeroProgression:ExperienceFilter(keys)
+  local playerID = keys.player_id_const
+  local experience = keys.experience
+
+  if experience then
+    if PlayerResource:GetConnectionState(playerID) == DOTA_CONNECTION_STATE_CONNECTED then
+      return true
+    else
+      if not self.XPStorage[playerID] then
+        self.XPStorage[playerID] = 0
+      end
+      self.XPStorage[playerID] = self.XPStorage[playerID] + experience
+      return false
+    end
+  end
 end

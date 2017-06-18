@@ -3,51 +3,75 @@
 CreepTypes = {
   -- 1 "easy camp"
   {
-    {                                          --HP   MANA  DMG   ARM   GOLD  EXP
-      {"npc_dota_neutral_kobold",               300,    0,  10,   0.5,   13,  54}, --expected gold is  65 and XP is 240
-      {"npc_dota_neutral_kobold",               300,    0,  10,   0.5,   13,  54},
-      {"npc_dota_neutral_kobold_taskmaster",    600,    0,  18,    1,    22,  70},
-      {"npc_dota_neutral_kobold_tunneler",      450,    0,  14,    1,    17,  62}
-    },
     {                                              --HP   MANA  DMG   ARM   GOLD  EXP
-      {"npc_dota_neutral_polar_furbolg_champion",   450,    0,  18,    1,    22,  70},
-      {"npc_dota_neutral_tomato",                   900,    0,  14,    1,    17,  62}
+      {"npc_dota_neutral_kobold",                   280,    0,  10,   0.5,   48,  40}, --expected gold is 138 and XP is 98
+      {"npc_dota_neutral_kobold_tunneler",          480,    0,  12,    1,    75,  50}
+    },
+    {
+      {"npc_dota_neutral_kobold_taskmaster",        560,    0,  16,    1,    81,  55},
+      {"npc_dota_neutral_kobold",                   280,    0,  10,   0.5,   48,  40}
+    },
+    {
+      {"npc_dota_neutral_kobold",                   280,    0,  10,   0.5,   48,  40},
+      {"npc_dota_neutral_kobold_tunneler",          480,    0,  12,    1,    75,  50}
+    },
+    {
+      {"npc_dota_neutral_kobold_taskmaster",        560,    0,  16,    1,    81,  55},
+      {"npc_dota_neutral_kobold",                   280,    0,  10,   0.5,   48,  40}
+    },
+    {
+      {"npc_dota_neutral_ghost",                    480,    0,  12,    1,    93,  60},
+      {"npc_dota_neutral_ghost",                    480,    0,  12,    1,    93,  60}
     }
   },
     -- 2 "medium camp"
   {
-    {                                          --HP   MANA  DMG   ARM   GOLD  EXP
-      {"npc_dota_neutral_harpy_storm",          600,  400,  30,    2,    24,  140}, --expected gold is 68 and XP is 360
-      {"npc_dota_neutral_harpy_storm",          600,  400,  30,    2,    24,  140},
-      {"npc_dota_neutral_harpy_scout",          450,    0,  40,    1,    20,   80},
+    {                                              --HP   MANA  DMG   ARM   GOLD  EXP
+      {"npc_dota_neutral_harpy_storm",              560,  320,  24,    2,   105,   71}, --expected gold is 195 and XP is 123
+      {"npc_dota_neutral_harpy_storm",              560,  320,  24,    2,   105,   71},
+      {"npc_dota_neutral_harpy_scout",              440,    0,  40,    1,    78,   30},
     },
-    {                                          --HP   MANA  DMG   ARM   GOLD  EXP
-      {"npc_dota_neutral_ghost",                600,    0,  35,   2,    34,   180},
-      {"npc_dota_neutral_ghost",                600,    0,  35,   2,    34,   180},
+    {
+      {"npc_dota_neutral_harpy_storm",              560,  320,  24,    2,   140,   71}
+    },
+    {
+      {"npc_dota_neutral_polar_furbolg_champion",   480,    0,  28,    2,    96,   63},
+      {"npc_dota_neutral_blueberry",                800,    0,  28,    2,    96,   63},
     }
   },
     -- 3 "hard camp"
   {
-    {                                          --HP   MANA  DMG   ARM   GOLD  EXP
-      {"npc_dota_neutral_centaur_khan",         1700, 400,   50,   3,    66,   120}, --expected gold is 135 and XP is 300
-      {"npc_dota_neutral_centaur_outrunner",    1200, 400,   30,   2,    46,   120},
-      {"npc_dota_neutral_centaur_outrunner",    1200, 400,   30,   2,    46,   120},
-    },
-    {                                          --HP   MANA  DMG   ARM   GOLD  EXP
-      {"npc_dota_neutral_centaur_khan",         1700, 400,   50,   3,    66,   120},
-      {"npc_dota_neutral_centaur_outrunner",    1200, 400,   30,   2,    46,   120},
+    {                                          --HP   MANA   DMG   ARM  GOLD   EXP
+      {"npc_dota_neutral_custom_big_horse",     1600, 400,   44,   3,   300,    49}, --expected gold is 504 and XP is 98
+      {"npc_dota_neutral_custom_small_horse",   1200, 240,   28,   2,   204,    49},
     },
     {
-      {"npc_dota_neutral_giant_wolf",            800, 200,   30,   3,    30,   110},
-      {"npc_dota_neutral_giant_wolf",            800, 200,   30,   3,    30,   110},
-      {"npc_dota_neutral_alpha_wolf",           1500, 600,   70,   5,    90,   135}
+      {"npc_dota_neutral_custom_big_horse",     1600, 400,   44,   3,   300,    49},
+      {"npc_dota_neutral_custom_small_horse",   1200, 240,   28,   2,   204,    49},
     },
     {
-      {"npc_dota_neutral_giant_wolf",            800, 200,   30,   3,    30,   110},
-      {"npc_dota_neutral_alpha_wolf",           1500, 600,   70,   5,    90,   135}
+      {"npc_dota_neutral_custom_big_horse",     1600, 400,   44,   3,   300,    49},
+      {"npc_dota_neutral_custom_small_horse",   1200, 240,   28,   2,   204,    49},
     },
     {
-      {"npc_dota_neutral_custom_black_dragon",  2300,   0,  100,   3,   135,   300},
+      {"npc_dota_neutral_custom_big_horse",     1600, 400,   44,   3,   300,    49},
+      {"npc_dota_neutral_custom_small_horse",   1200, 240,   28,   2,   204,    49},
+    },
+    {
+      {"npc_dota_neutral_custom_small_pupper",   640, 160,   24,   3,   108,    36},
+      {"npc_dota_neutral_custom_small_pupper",   640, 160,   24,   3,   108,    36},
+      {"npc_dota_neutral_custom_big_pupper",    1200, 480,   56,   5,   360,    50}
+    },
+    {
+      {"npc_dota_neutral_custom_small_pupper",   640, 160,   24,   3,   108,    36},
+      {"npc_dota_neutral_custom_big_pupper",    1200, 480,   56,   5,   360,    50}
+    },
+    {
+      {"npc_dota_neutral_custom_small_pupper",   640, 160,   24,   3,   108,    36},
+      {"npc_dota_neutral_custom_big_pupper",    1200, 480,   56,   5,   360,    50}
+    },
+    {
+      {"npc_dota_neutral_custom_black_dragon",  1840,   0,   80,   3,   504,    98},
     }
   }
 }

@@ -4,7 +4,7 @@ LinkLuaModifier( "modifier_item_martyrs_mail_martyr_aura", "items/martyrs_mail.l
 
 --------------------------------------------------------------------------------
 
-item_martyrs_mail = class({})
+item_martyrs_mail = class(ItemBaseClass)
 
 function item_martyrs_mail:GetIntrinsicModifierName()
 	return "modifier_item_martyrs_mail_passive"
@@ -18,28 +18,22 @@ function item_martyrs_mail:OnSpellStart()
 	hCaster:AddNewModifier( hCaster, self, "modifier_item_martyrs_mail_martyr_active", { duration = martyr_duration } )
 end
 
---------------------------------------------------------------------------------
-
-item_martyrs_mail_2 = class({})
-
-function item_martyrs_mail_2:GetIntrinsicModifierName()
-	return "modifier_item_martyrs_mail_passive"
-end
-
-function item_martyrs_mail_2:OnSpellStart()
-	local hCaster = self:GetCaster()
-	local martyr_duration = self:GetSpecialValueFor( "martyr_duration" )
-
-	EmitSoundOn( "DOTA_Item.BladeMail.Activate", hCaster )
-	hCaster:AddNewModifier( hCaster, self, "modifier_item_martyrs_mail_martyr_active", { duration = martyr_duration } )
-end
+item_martyrs_mail_2 = class(item_martyrs_mail)
 
 --------------------------------------------------------------------------------
 
-modifier_item_martyrs_mail_passive = class({})
+modifier_item_martyrs_mail_passive = class(ModifierBaseClass)
 
 function modifier_item_martyrs_mail_passive:IsHidden()
 	return true
+end
+
+function modifier_item_martyrs_mail_passive:IsPurgable()
+  return false
+end
+
+function modifier_item_martyrs_mail_passive:GetAttributes()
+  return MODIFIER_ATTRIBUTE_MULTIPLE
 end
 
 function modifier_item_martyrs_mail_passive:OnCreated()
@@ -47,6 +41,8 @@ function modifier_item_martyrs_mail_passive:OnCreated()
 	self.bonus_armor = self:GetAbility():GetSpecialValueFor( "bonus_armor" )
 	self.bonus_intellect = self:GetAbility():GetSpecialValueFor( "bonus_intellect" )
 end
+
+modifier_item_martyrs_mail_passive.OnRefresh = modifier_item_martyrs_mail_passive.OnCreated
 
 function modifier_item_martyrs_mail_passive:DeclareFunctions()
 	local funcs = {
@@ -72,10 +68,14 @@ end
 
 --------------------------------------------------------------------------------
 
-modifier_item_martyrs_mail_martyr_active = class({})
+modifier_item_martyrs_mail_martyr_active = class(ModifierBaseClass)
 
 function modifier_item_martyrs_mail_martyr_active:IsAura()
 	return true
+end
+
+function modifier_item_martyrs_mail_martyr_active:IsPurgable()
+  return false
 end
 
 function modifier_item_martyrs_mail_martyr_active:GetModifierAura()
@@ -113,11 +113,22 @@ function modifier_item_martyrs_mail_martyr_active:OnTakeDamage( kv )
 	if IsServer() then
 		local hCaster = self:GetParent()
 
+    -- Prevent reflecting self-damage
+    if kv.attacker == hCaster then
+      return
+    end
+
+    --Prevent reflecting damage with no-reflect flag
+    if bit.band(kv.damage_flags, DOTA_DAMAGE_FLAG_REFLECTION) == DOTA_DAMAGE_FLAG_REFLECTION then
+	    return
+    end
+
 		if kv.unit == hCaster then
 			local damageTable = {
 				victim = kv.attacker,
 				attacker = hCaster,
 				damage = kv.damage,
+				damage_flag = bit.bor(DOTA_DAMAGE_FLAG_REFLECTION, DOTA_DAMAGE_FLAG_NO_DAMAGE_MULTIPLIERS),
 				damage_type = kv.damage_type
 			}
 
@@ -149,7 +160,7 @@ end
 
 --------------------------------------------------------------------------------
 
-modifier_item_martyrs_mail_martyr_aura = class({})
+modifier_item_martyrs_mail_martyr_aura = class(ModifierBaseClass)
 
 function modifier_item_martyrs_mail_martyr_aura:GetEffectName()
 	return "particles/world_shrine/radiant_shrine_active_ray.vpcf"

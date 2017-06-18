@@ -7,6 +7,7 @@
     <include src="file://{resources}/scripts/custom_game/abilitylevels.js" />
     <include src="file://{resources}/scripts/custom_game/leveldots.js" />
     <include src="file://{resources}/scripts/custom_game/huderrors.js" />
+    <include src="file://{resources}/scripts/custom_game/game_info.js" />
   </scripts>
   <script>
     // Uncomment any of the following lines in order to disable that portion of the default UI
@@ -61,6 +62,10 @@
     <CustomUIElement type="Hud"                 layoutfile="file://{resources}/layout/custom_game/need_greed_pass/layout.xml" />
     <CustomUIElement type="Hud"                 layoutfile="file://{resources}/layout/custom_game/barebones_notifications.xml" />
     <CustomUIElement type="Hud"                 layoutfile="file://{resources}/layout/custom_game/statcollection.xml" />
+    <CustomUIElement type="GameInfo"            layoutfile="file://{resources}/layout/custom_game/oaa_game_info.xml" />
+    <CustomUIElement type="Hud"                 layoutfile="file://{resources}/layout/custom_game/info.xml" />
+    <CustomUIElement type="Hud"                 layoutfile="file://{resources}/layout/custom_game/stat_display.xml" />
+
 
     <!-- From Overthrow.
 

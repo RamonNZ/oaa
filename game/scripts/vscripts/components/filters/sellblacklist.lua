@@ -1,16 +1,16 @@
 if SellBlackList == nil then
-  Debug.EnabledModules['sellblacklist:*'] = false
+  Debug.EnabledModules['filters:sellblacklist'] = false
   DebugPrint('creating new SellBlackList object')
   SellBlackList = class({})
 end
 
+local ItemSellBlackList = {
+  "item_upgrade_core",
+  "item_infinite_bottle"
+}
+
 function SellBlackList:Init ()
   FilterManager:AddFilter(FilterManager.ExecuteOrder, self, Dynamic_Wrap(SellBlackList, "OrderFilter"))
-
-  ItemSellBlackList = {
-    "item_upgrade_core",
-    "item_infinite_bottle"
-  }
 end
 
 function SellBlackList:OrderFilter (filterTable)

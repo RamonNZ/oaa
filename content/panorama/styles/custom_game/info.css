@@ -1,0 +1,11 @@
+.InfoContainer
+{
+  horizontal-align: left;
+  vertical-align: top;
+}
+
+.InfoLabel
+{
+  color: rgb(205,36,36);
+  color: rgba(205,36,36,.52);
+}

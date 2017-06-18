@@ -1,5 +1,5 @@
 
-modifier_boss_phase_controller = class({})
+modifier_boss_phase_controller = class(ModifierBaseClass)
 
 function modifier_boss_phase_controller:OnRefresh ()
   if not IsServer() then
@@ -20,6 +20,10 @@ function modifier_boss_phase_controller:OnCreated (keys)
   self:StartIntervalThink( 0.5 )
 end
 
+function modifier_boss_phase_controller:IsPurgable()
+  return false
+end
+
 function modifier_boss_phase_controller:SetPhases (phases)
   self.phases = iter(phases)
 end
@@ -27,7 +31,7 @@ end
 function modifier_boss_phase_controller:SetAbilities (abilities)
   local caster = self:GetCaster()
 
-  function getAbilityByName (name)
+  local function getAbilityByName (name)
     return caster:FindAbilityByName(name)
   end
 

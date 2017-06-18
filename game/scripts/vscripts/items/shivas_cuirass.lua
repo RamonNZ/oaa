@@ -4,7 +4,7 @@ LinkLuaModifier( "modifier_item_shivas_cuirass_aura", "items/shivas_cuirass.lua"
 
 --------------------------------------------------------------------------------
 
-item_shivas_cuirass = class({})
+item_shivas_cuirass = class(ItemBaseClass)
 
 function item_shivas_cuirass:GetIntrinsicModifierName()
 	return "modifier_item_shivas_cuirass"
@@ -19,11 +19,11 @@ end
 
 --------------------------------------------------------------------------------
 
-item_shivas_cuirass_2 = item_shivas_cuirass
+item_shivas_cuirass_2 = item_shivas_cuirass --luacheck: ignore item_shivas_cuirass_2
 
 --------------------------------------------------------------------------------
 
-modifier_item_shivas_cuirass = class({})
+modifier_item_shivas_cuirass = class(ModifierBaseClass)
 
 function modifier_item_shivas_cuirass:OnCreated()
 	self.bonus_intellect = self:GetAbility():GetSpecialValueFor( "bonus_intellect" )
@@ -39,6 +39,10 @@ end
 
 function modifier_item_shivas_cuirass:IsAura()
 	return true
+end
+
+function modifier_item_shivas_cuirass:IsPurgable()
+  return false
 end
 
 function modifier_item_shivas_cuirass:GetAuraRadius()
@@ -80,7 +84,7 @@ end
 
 --------------------------------------------------------------------------------
 
-modifier_item_shivas_cuirass_aura = class({})
+modifier_item_shivas_cuirass_aura = class(ModifierBaseClass)
 
 function modifier_item_shivas_cuirass_aura:OnCreated()
 	self.aura_attack_speed = self:GetAbility():GetSpecialValueFor( "aura_attack_speed" )

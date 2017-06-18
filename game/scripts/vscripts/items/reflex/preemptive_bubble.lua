@@ -14,7 +14,7 @@ require('libraries/timers')
 
 ------------------------------------------------------------------------
 
-item_preemptive_3c = class({})
+item_preemptive_3c = class(ItemBaseClass)
 
 function item_preemptive_3c:GetIntrinsicModifierName()
   return "modifier_generic_bonus"
@@ -31,7 +31,7 @@ function item_preemptive_3c:OnSpellStart()
 
   EmitSoundOnLocationWithCaster(targetPoint, "Hero_ArcWarden.MagneticField.Cast", caster)
   -- Particle effect
-  local bubbleEffectName = "particles/econ/items/faceless_void/faceless_void_mace_of_aeons/fv_chronosphere_aeons.vpcf"
+  local bubbleEffectName = "particles/items/bubble_orb_base.vpcf"
   local bubbleEffect = ParticleManager:CreateParticle(bubbleEffectName, PATTACH_ABSORIGIN, caster)
   ParticleManager:SetParticleControl(bubbleEffect, 1, Vector(radius, radius, radius))
 
@@ -44,7 +44,7 @@ end
 
 ------------------------------------------------------------------------
 
-modifier_item_preemptive_bubble_aura_block = class({})
+modifier_item_preemptive_bubble_aura_block = class(ModifierBaseClass)
 
 function modifier_item_preemptive_bubble_aura_block:IsHidden()
   return true
@@ -71,7 +71,7 @@ function modifier_item_preemptive_bubble_aura_block:OnCreated(keys)
     self.bubbleCenter = self:GetParent():GetOrigin()
     self.caster = self:GetCaster()
     self.casterTeam = self.caster:GetTeamNumber()
-    self.bubbleIdentifier = "BubbleOrbID: " .. self.casterTeam .. "," .. self.bubbleCenter.x .. "," .. self.bubbleCenter.y
+    self.bubbleID = "BubbleOrbID: " .. self.casterTeam .. "," .. self.bubbleCenter.x .. "," .. self.bubbleCenter.y
     self.ability = self:GetAbility()
     self.radius = self.ability:GetSpecialValueFor("radius")
     self.aura_stickiness = self.ability:GetSpecialValueFor("aura_stickiness")
@@ -81,22 +81,33 @@ function modifier_item_preemptive_bubble_aura_block:OnCreated(keys)
 end
 
 function modifier_item_preemptive_bubble_aura_block:OnIntervalThink()
-  local alliedUnitsInBubble = FindUnitsInRadius(self.casterTeam, self.bubbleCenter, nil, self.radius, DOTA_UNIT_TARGET_TEAM_FRIENDLY, DOTA_UNIT_TARGET_ALL, DOTA_UNIT_TARGET_FLAG_NONE, FIND_ANY_ORDER, false)
+  local alliedUnitsInBubble = FindUnitsInRadius(
+    self.casterTeam,
+    self.bubbleCenter,
+    nil,
+    self.radius,
+    DOTA_UNIT_TARGET_TEAM_FRIENDLY,
+    DOTA_UNIT_TARGET_ALL,
+    DOTA_UNIT_TARGET_FLAG_NONE,
+    FIND_ANY_ORDER,
+    false
+  )
 
-  function ApplyBlockModifier(unit)
+  local function ApplyBlockModifier(unit)
     local bubbleModifierName = "modifier_item_preemptive_bubble_block"
     local bubbleModifiers = unit:FindAllModifiersByName(bubbleModifierName)
 
     -- Checks if the given modifier comes from the bubble represented by self by comparing centers
-    function IsFromThisBubble(modifier)
+    local function IsFromThisBubble(modifier)
       return modifier.bubbleCenter.x == self.bubbleCenter.x and modifier.bubbleCenter.y == self.bubbleCenter.y
     end
 
     local duplicateModifier = nth(1, filter(IsFromThisBubble, bubbleModifiers))
+    local bubbleModifierID = self.bubbleID .. "," .. unit:entindex()
     -- If the unit already has a modifier with the same center then refresh its timer
     if duplicateModifier then
-      Timers:RemoveTimer(self.bubbleIdentifier)
-      Timers:CreateTimer(self.bubbleIdentifier, {
+      Timers:RemoveTimer(bubbleModifierID)
+      Timers:CreateTimer(bubbleModifierID, {
         endTime = self.aura_stickiness,
         callback = function()
           duplicateModifier:Destroy()
@@ -107,7 +118,7 @@ function modifier_item_preemptive_bubble_aura_block:OnIntervalThink()
         aura_origin_x = self.bubbleCenter.x,
         aura_origin_y = self.bubbleCenter.y
       })
-      Timers:CreateTimer(self.bubbleIdentifier, {
+      Timers:CreateTimer(bubbleModifierID, {
         endTime = self.aura_stickiness,
         callback = function()
           newBubbleModifier:Destroy()
@@ -137,7 +148,7 @@ end
 
 ------------------------------------------------------------------------
 
-modifier_item_preemptive_bubble_block = class({})
+modifier_item_preemptive_bubble_block = class(ModifierBaseClass)
 
 function modifier_item_preemptive_bubble_block:IsHidden()
   return false

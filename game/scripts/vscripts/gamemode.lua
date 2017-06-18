@@ -9,7 +9,7 @@ BAREBONES_DEBUG_SPEW = false
 if GameMode == nil then
     DebugPrint( '[BAREBONES] creating barebones game mode' )
     print("Lua Version: " .. _VERSION)
-    _G.GameMode = class({})
+    GameMode = class({})
 end
 
 -- functional library, sugar for excellent code. this should be usable in any library, so we include it first
@@ -49,6 +49,10 @@ require('libraries/chatcommand')
 require('libraries/playerresource')
 -- Extensions to CDOTA_BaseNPC
 require('libraries/basenpc')
+-- Extensions to CDOTA_BaseNPC_Hero
+require('libraries/basehero')
+-- extension functions to GameRules
+require('libraries/gamerules')
 
 -- These internal libraries set up barebones's events and processes.  Feel free to inspect them/change them if you need to.
 require('internal/gamemode')
@@ -149,9 +153,12 @@ function GameMode:OnPreGame()
   InitModule(AbilityLevels)
   InitModule(HeroProgression)
   InitModule(SellBlackList)
+  InitModule(Glyph)
   InitModule(BubbleOrbFilter)
+  InitModule(ReactiveFilter)
   InitModule(NGP)
   InitModule(Doors)
+  InitModule(HeroKillGold)
 end
 
 --[[
@@ -171,6 +178,7 @@ function GameMode:OnGameInProgress()
   InitModule(BossSpawner)
   InitModule(BottleCounter)
   InitModule(DuelRunes)
+  InitModule(FinalDuel)
 end
 
 function InitModule(myModule)
@@ -188,6 +196,8 @@ function GameMode:InitGameMode()
   InitModule(FilterManager)
   InitModule(GameLengthVotes)
   InitModule(Courier)
+  InitModule(ChatCommand)
+  InitModule(DevCheats)
 
   -- Commands can be registered for debugging purposes or as functions that can be called by the custom Scaleform UI
   -- Convars:RegisterCommand( "command_example", Dynamic_Wrap(GameMode, 'ExampleConsoleCommand'), "A console command example", FCVAR_CHEAT )

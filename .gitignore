@@ -54,6 +54,7 @@ panorama_debugger.cfg
 *.vxml_c
 *.vjs_c
 *.vcss_c
+*.vsndevts_c
 *.vpk
 
 # DotaStats
@@ -64,3 +65,7 @@ server_log.txt
 
 rich_presence_persistent_data.txt
 cache_*.soc
+.luacheckcache
+here/
+
+game/screenshots/

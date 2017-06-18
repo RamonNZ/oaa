@@ -1,6 +1,6 @@
-modifier_disable_control = class({})
+modifier_disable_control = class(ModifierBaseClass)
 
-function modifier_disable_control:CheckState() 
+function modifier_disable_control:CheckState()
   local state = {
       [MODIFIER_STATE_COMMAND_RESTRICTED] = true,
   }

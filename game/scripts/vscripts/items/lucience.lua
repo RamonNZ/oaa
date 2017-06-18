@@ -1,3 +1,5 @@
+require('libraries/timers')
+
 LinkLuaModifier("modifier_item_lucience_aura_handler", "items/lucience.lua", LUA_MODIFIER_MOTION_NONE)
 LinkLuaModifier("modifier_item_lucience_regen_aura", "items/lucience.lua", LUA_MODIFIER_MOTION_NONE)
 LinkLuaModifier("modifier_item_lucience_movespeed_aura", "items/lucience.lua", LUA_MODIFIER_MOTION_NONE)
@@ -7,34 +9,50 @@ LinkLuaModifier("modifier_item_lucience_movespeed_effect", "items/lucience.lua",
 -- Name constants
 local regenAuraName = "modifier_item_lucience_regen_aura"
 local movespeedAuraName = "modifier_item_lucience_movespeed_aura"
-local regenIconName = "custom/lucience"
-local movespeedIconName = "custom/lucience_movespeed"
 local auraTypeRegen = 1
 local auraTypeMovespeed = 2
 
-item_lucience = class({})
+item_lucience = class(ItemBaseClass)
 
 function item_lucience:GetIntrinsicModifierName()
   return "modifier_item_lucience_aura_handler"
 end
 
-function item_lucience:OnToggle()
+function item_lucience:OnSpellStart()
+  local caster = self:GetCaster()
+
   self:StartCooldown(self:GetCooldown(self:GetLevel()))
 
-  local caster = self:GetCaster()
+  -- Switch state
+  self.serverLucienceState = not self.serverLucienceState
+
   -- Switch auras
   if self.auraHandler then
     self.auraHandler:OnRefresh()
   end
 end
 
+function item_lucience:GetToggleState()
+  if self.serverLucienceState == nil then
+    self.serverLucienceState = false
+  end
+
+  return self.serverLucienceState
+end
+
 function item_lucience:GetAbilityTextureName()
   local baseIconName = self.BaseClass.GetAbilityTextureName(self)
-  if not self.auraHandler or self.auraHandler:IsNull() then
+
+  -- Update state based on stacks of the intrinsic modifier
+  if self.auraHandler and not self.auraHandler:IsNull() then
+    self.lucienceState = self.auraHandler:GetStackCount()
+  end
+
+  if not self.lucienceState then
     return baseIconName
-  elseif self.auraHandler:GetStackCount() == auraTypeRegen then
+  elseif self.lucienceState == auraTypeRegen then
     return baseIconName
-  elseif self.auraHandler:GetStackCount() == auraTypeMovespeed then
+  elseif self.lucienceState == auraTypeMovespeed then
     return baseIconName .. "_movespeed"
   else
     return baseIconName
@@ -48,7 +66,7 @@ end
 
 function item_lucience.RemoveLucienceEffects(ability, effectModifierName, unit)
   local effectModifier = unit:FindModifierByName(effectModifierName)
-  if effectModifier and ability:GetLevel() > effectModifier:GetAbility():GetLevel() then
+  if effectModifier then
     unit:RemoveModifierByName(effectModifierName)
   end
 end
@@ -58,14 +76,39 @@ item_lucience_3 = class(item_lucience)
 
 ------------------------------------------------------------------------
 
-modifier_item_lucience_aura_handler = class({})
+modifier_item_lucience_aura_handler = class(ModifierBaseClass)
 
 function modifier_item_lucience_aura_handler:IsHidden()
   return true
 end
 
+function modifier_item_lucience_aura_handler:IsPurgable()
+  return false
+end
+
 function modifier_item_lucience_aura_handler:GetAttributes()
   return MODIFIER_ATTRIBUTE_MULTIPLE
+end
+
+function modifier_item_lucience_aura_handler:GetLuciences()
+  local caster = self:GetCaster()
+
+  local function IsItemLucience(item)
+    return item and string.sub(item:GetAbilityName(), 0, 13) == "item_lucience"
+  end
+
+  local inventoryItems = map(partial(caster.GetItemInSlot, caster), range(0, 5))
+  local lucienceItems = filter(IsItemLucience, inventoryItems)
+
+  return lucienceItems
+end
+
+function modifier_item_lucience_aura_handler:IsHighestLevelLucience(item)
+  local function IsLowerOrEqualLevel(item2)
+    return item2:GetLevel() <= item:GetLevel()
+  end
+
+  return every(IsLowerOrEqualLevel, self:GetLuciences())
 end
 
 function modifier_item_lucience_aura_handler:OnCreated()
@@ -76,8 +119,6 @@ function modifier_item_lucience_aura_handler:OnCreated()
   if IsServer() then
     local parent = self:GetParent()
     local caster = self:GetCaster()
-    local currentRegenAura = parent:FindModifierByName(regenAuraName)
-    local currentMovespeedAura = parent:FindModifierByName(movespeedAuraName)
 
     -- Set stack count to update item icon
     if ability:GetToggleState() then
@@ -86,16 +127,14 @@ function modifier_item_lucience_aura_handler:OnCreated()
       self:SetStackCount(auraTypeRegen)
     end
 
-    -- If the owner has a higher level Lucience Aura then don't do anything
-    if currentRegenAura and ability:GetLevel() < currentRegenAura:GetAbility():GetLevel() then
-      return
-    elseif currentMovespeedAura and ability:GetLevel() < currentMovespeedAura:GetAbility():GetLevel() then
+    -- If the owner has a higher level Lucience then don't do anything
+    if not self:IsHighestLevelLucience(ability) then
       return
     end
 
-    item_lucience.RemoveLucienceAuras(parent)
     -- Delay adding the aura modifiers by a frame so that illusions won't always spawn with the regen aura
     Timers:CreateTimer(function()
+      item_lucience.RemoveLucienceAuras(parent)
       if ability:GetToggleState() then
         parent:AddNewModifier(caster, ability, movespeedAuraName, {})
       else
@@ -112,16 +151,13 @@ function modifier_item_lucience_aura_handler:OnDestroy()
     local parent = self:GetParent()
 
     local ability = self:GetAbility()
-    local currentRegenAura = parent:FindModifierByName(regenAuraName)
-    local currentMovespeedAura = parent:FindModifierByName(movespeedAuraName)
 
-    -- If the owner has a higher level Lucience Aura then don't do anything
-    if currentRegenAura and ability:GetLevel() < currentRegenAura:GetAbility():GetLevel() then
-      return
-    elseif currentMovespeedAura and ability:GetLevel() < currentMovespeedAura:GetAbility():GetLevel() then
+    -- If the owner has a higher level Lucience then don't do anything
+    if not self:IsHighestLevelLucience(ability) then
       return
     end
-    function RefreshHandler(modifier)
+
+    local function RefreshHandler(modifier)
       modifier:OnRefresh()
     end
 
@@ -147,7 +183,7 @@ end
 
 ------------------------------------------------------------------------
 
-modifier_item_lucience_regen_aura = class({})
+modifier_item_lucience_regen_aura = class(ModifierBaseClass)
 
 function modifier_item_lucience_regen_aura:OnCreated()
   if IsServer() then
@@ -220,7 +256,7 @@ end
 
 ------------------------------------------------------------------------
 
-modifier_item_lucience_regen_effect = class({})
+modifier_item_lucience_regen_effect = class(ModifierBaseClass)
 
 function modifier_item_lucience_regen_effect:OnCreated()
   self.regenBonus = self:GetAbility():GetSpecialValueFor("regen_bonus")
@@ -243,12 +279,16 @@ function modifier_item_lucience_regen_effect:GetEffectName()
 end
 
 function modifier_item_lucience_regen_effect:GetTexture()
-  return regenIconName
+  local ability = self:GetAbility()
+  if ability and not ability:IsNull() then
+    local baseIconName = ability.BaseClass.GetAbilityTextureName(ability)
+    return baseIconName
+  end
 end
 
 ------------------------------------------------------------------------
 
-modifier_item_lucience_movespeed_effect = class({})
+modifier_item_lucience_movespeed_effect = class(ModifierBaseClass)
 
 function modifier_item_lucience_movespeed_effect:OnCreated()
   self.movespeedBonus = self:GetAbility():GetSpecialValueFor("speed_bonus")
@@ -271,5 +311,9 @@ function modifier_item_lucience_movespeed_effect:GetEffectName()
 end
 
 function modifier_item_lucience_movespeed_effect:GetTexture()
-  return movespeedIconName
+  local ability = self:GetAbility()
+  if ability and not ability:IsNull() then
+    local baseIconName = ability.BaseClass.GetAbilityTextureName(ability)
+    return baseIconName .. "_movespeed"
+  end
 end
